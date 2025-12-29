@@ -47,20 +47,9 @@
 
 <div align="center">
 
-<a href="https://github.com/samonide/nvim">
-  <img width="49%" src="https://readme-xi-six.vercel.app/api/pin/?username=samonide&repo=nvim&theme=radical&hide_border=true" />
-</a>
-<a href="https://github.com/samonide/zenith">
-  <img width="49%" src="https://readme-xi-six.vercel.app/api/pin/?username=samonide&repo=zenith&theme=radical&hide_border=true" />
-</a>
-
-<br/>
-
-<a href="https://github.com/samonide/runner.nvim">
-  <img width="49%" src="https://readme-xi-six.vercel.app/api/pin/?username=samonide&repo=runner.nvim&theme=radical&hide_border=true" />
-</a>
-<a href="https://github.com/samonide/vyn">
-  <img width="49%" src="https://readme-xi-six.vercel.app/api/pin/?username=samonide&repo=vyn&theme=radical&hide_border=true" />
-</a>
+<a href="https://github.com/samonide/nvim"><img width="49%" src="https://readme-xi-six.vercel.app/api/pin/?username=samonide&repo=nvim&theme=radical&hide_border=true" /></a>
+<a href="https://github.com/samonide/zenith"><img width="49%" src="https://readme-xi-six.vercel.app/api/pin/?username=samonide&repo=zenith&theme=radical&hide_border=true" /></a>
+<a href="https://github.com/samonide/runner.nvim"><img width="49%" src="https://readme-xi-six.vercel.app/api/pin/?username=samonide&repo=runner.nvim&theme=radical&hide_border=true" /></a>
+<a href="https://github.com/samonide/vyn"><img width="49%" src="https://readme-xi-six.vercel.app/api/pin/?username=samonide&repo=vyn&theme=radical&hide_border=true" /></a>
 
 </div>
