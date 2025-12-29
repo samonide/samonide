@@ -30,8 +30,6 @@
 
 <img src="https://readme-xi-six.vercel.app/api?username=samonide&show_icons=true&theme=radical&hide_border=true&count_private=true&include_all_commits=true" alt="Stats" />
 
-<img src="https://streak-stats.demolab.com?user=samonide&theme=radical&hide_border=true" alt="Streak" />
-
 <img src="https://readme-xi-six.vercel.app/api/top-langs/?username=samonide&theme=radical&hide_border=true&layout=compact&langs_count=6&hide=html,css" alt="Languages" />
 
 </div>
