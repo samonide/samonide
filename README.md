@@ -7,7 +7,6 @@
 
 </div>
 
----
 
 ## 🙋‍♂️ About Me
 
@@ -16,7 +15,6 @@
 - 📫 Reach me at **samonide@fmb.im**
 - ⚡ Fun fact: **There is nothing fun**
 
----
 
 ## 🛠️ Tech Stack
 
@@ -25,8 +23,6 @@
     <img src="https://skillicons.dev/icons?i=c,cpp,lua,js,go,python,react,nodejs,neovim,linux,docker,git&perline=6" />
   </a>
 </p>
-
----
 
 ## 📊 Stats
 
@@ -39,8 +35,6 @@
 <img src="https://readme-xi-six.vercel.app/api/top-langs/?username=samonide&theme=radical&hide_border=true&layout=compact&langs_count=6&hide=html,css" alt="Languages" />
 
 </div>
-
----
 
 
 ## Projects
