@@ -1,0 +1,37 @@
+name: update-card
+
+on:
+  schedule:
+    # daily midnight UTC
+    - cron: '0 0 * * *'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install python-dateutil requests lxml
+      - name: Create cache dir
+        run: mkdir -p cache
+      - name: Run today.py
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN || github.token }}
+          USER_NAME: samonide
+        run: python today.py
+      - name: Commit updated stats
+        run: |
+          git config user.name "samonide"
+          git config user.email "samonide@fmb.im"
+          git add dark_mode.svg light_mode.svg cache/
+          git diff --cached --quiet || git commit -m "Update card stats"
+          git push
