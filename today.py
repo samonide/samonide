@@ -48,6 +48,15 @@ def simple_request(func_name, query, variables):
     for attempt in range(4):
         request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables':variables}, headers=HEADERS, timeout=30)
         if request.status_code == 200:
+            try:
+                body = request.json()
+            except ValueError: # Non-JSON 200 response: treat as a failure
+                raise Exception(func_name, ' has failed with a non-JSON response', request.status_code, request.text, QUERY_COUNT)
+            if body.get('data') is None: # GraphQL error body (e.g. rate limit): raise instead of passing a broken response through
+                error_types = [e.get('type') for e in body.get('errors', []) if isinstance(e, dict)]
+                if 'RATE_LIMITED' in error_types:
+                    raise Exception(func_name, ' has failed with', request.status_code, request.text, QUERY_COUNT, ' Hit the GitHub API rate limit; wait about an hour and rerun the workflow.')
+                raise Exception(func_name, ' has failed with', request.status_code, request.text, QUERY_COUNT)
             return request
         if request.status_code in (403, 429, 500, 502, 503, 504): # transient: retry with backoff
             retry_after = request.headers.get('Retry-After')
@@ -169,7 +178,18 @@ def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, delet
         break
     if request.status_code == 200:
         try:
-            repository = request.json()['data']['repository']
+            body = request.json()
+        except ValueError:
+            force_close_file(data, cache_comment)
+            raise Exception('recursive_loc() has failed with a non-JSON response', request.status_code, request.text, QUERY_COUNT)
+        if body.get('data') is None: # no data (rate limit or error); never zero the cache, crash instead
+            force_close_file(data, cache_comment)
+            error_types = [e.get('type') for e in body.get('errors', []) if isinstance(e, dict)]
+            if 'RATE_LIMITED' in error_types:
+                raise Exception('Too many requests in a short amount of time!\nYou\'ve hit the non-documented anti-abuse limit!')
+            raise Exception('recursive_loc() has failed with', request.status_code, request.text, QUERY_COUNT)
+        try:
+            repository = body['data']['repository']
             default_branch = repository['defaultBranchRef']
             if default_branch is not None: # Only count commits if repo isn't empty
                 return loc_counter_one_repo(owner, repo_name, data, cache_comment, default_branch['target']['history'], addition_total, deletion_total, my_commits)
@@ -188,10 +208,11 @@ def loc_counter_one_repo(owner, repo_name, data, cache_comment, history, additio
     only adds the LOC value of commits authored by me
     """
     for node in history['edges']:
-        if node['node']['author']['user'] == OWNER_ID:
+        commit = node['node'] if node is not None else None
+        if commit is not None and commit['author'] is not None and commit['author']['user'] == OWNER_ID:
             my_commits += 1
-            addition_total += node['node']['additions']
-            deletion_total += node['node']['deletions']
+            addition_total += commit['additions']
+            deletion_total += commit['deletions']
 
     if history['edges'] == [] or not history['pageInfo']['hasNextPage']:
         return addition_total, deletion_total, my_commits
@@ -268,16 +289,31 @@ def cache_builder(edges, comment_size, force_cache, loc_add=0, loc_del=0):
     cache_comment = data[:comment_size] # save the comment block
     data = data[comment_size:] # remove those lines
     for index in range(len(edges)):
-        repo_hash, commit_count, *__ = data[index].split()
-        if repo_hash == hashlib.sha256(edges[index]['node']['nameWithOwner'].encode('utf-8')).hexdigest():
+        node = edges[index]['node'] if edges[index] is not None else None
+        if node is None: # deleted or inaccessible repo; keep one line per edge
+            data[index] = '0 0 0 0 0\n'
+            continue
+        repo_hash = hashlib.sha256(node['nameWithOwner'].encode('utf-8')).hexdigest()
+        cached_hash, commit_count, *__ = data[index].split()
+        if cached_hash == repo_hash:
             try:
-                if int(commit_count) != edges[index]['node']['defaultBranchRef']['target']['history']['totalCount']:
+                if int(commit_count) != node['defaultBranchRef']['target']['history']['totalCount']:
                     # if commit count has changed, update loc for that repo
-                    owner, repo_name = edges[index]['node']['nameWithOwner'].split('/')
+                    owner, repo_name = node['nameWithOwner'].split('/')
                     loc = recursive_loc(owner, repo_name, data, cache_comment)
-                    data[index] = repo_hash + ' ' + str(edges[index]['node']['defaultBranchRef']['target']['history']['totalCount']) + ' ' + str(loc[2]) + ' ' + str(loc[0]) + ' ' + str(loc[1]) + '\n'
+                    data[index] = repo_hash + ' ' + str(node['defaultBranchRef']['target']['history']['totalCount']) + ' ' + str(loc[2]) + ' ' + str(loc[0]) + ' ' + str(loc[1]) + '\n'
             except TypeError: # If the repo is empty
                 data[index] = repo_hash + ' 0 0 0 0\n'
+        elif node.get('defaultBranchRef') is None: # stale placeholder or empty repo: keep correct hash, zero counts
+            data[index] = repo_hash + ' 0 0 0 0\n'
+        else: # stale cache (renamed repo or placeholder line): refresh LOC
+            owner, repo_name = node['nameWithOwner'].split('/')
+            loc = recursive_loc(owner, repo_name, data, cache_comment)
+            try:
+                total_count = node['defaultBranchRef']['target']['history']['totalCount']
+            except (TypeError, KeyError): # empty or incomplete repo
+                total_count = 0
+            data[index] = repo_hash + ' ' + str(total_count) + ' ' + str(loc[2]) + ' ' + str(loc[0]) + ' ' + str(loc[1]) + '\n'
     with open(filename, 'w') as f:
         f.writelines(cache_comment)
         f.writelines(data)
@@ -300,6 +336,9 @@ def flush_cache(edges, filename, comment_size):
     with open(filename, 'w') as f:
         f.writelines(data)
         for node in edges:
+            if node is None or node['node'] is None: # deleted or inaccessible repo
+                f.write('0 0 0 0 0\n')
+                continue
             f.write(hashlib.sha256(node['node']['nameWithOwner'].encode('utf-8')).hexdigest() + ' 0 0 0 0\n')
 
 
@@ -339,7 +378,8 @@ def stars_counter(data):
     Count total stars in repositories owned by me
     """
     total_stars = 0
-    for node in data: total_stars += node['node']['stargazers']['totalCount']
+    for node in data:
+        if node is not None and node['node'] is not None: total_stars += node['node']['stargazers']['totalCount']
     return total_stars
 
 
