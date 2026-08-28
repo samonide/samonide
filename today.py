@@ -43,10 +43,20 @@ def format_plural(unit):
 def simple_request(func_name, query, variables):
     """
     Returns a request, or raises an Exception if the response does not succeed.
+    Retries transient failures (rate limits, 5xx) with exponential backoff.
     """
-    request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables':variables}, headers=HEADERS)
-    if request.status_code == 200:
-        return request
+    for attempt in range(4):
+        request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables':variables}, headers=HEADERS, timeout=30)
+        if request.status_code == 200:
+            return request
+        if request.status_code in (403, 429, 500, 502, 503, 504): # transient: retry with backoff
+            retry_after = request.headers.get('Retry-After')
+            if retry_after and retry_after.isdigit():
+                time.sleep(min(int(retry_after), 30))
+            else:
+                time.sleep(2 ** attempt) # 1s, 2s, 4s
+            continue
+        break
     raise Exception(func_name, ' has failed with a', request.status_code, request.text, QUERY_COUNT)
 
 
@@ -144,11 +154,28 @@ def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, delet
         }
     }'''
     variables = {'repo_name': repo_name, 'owner': owner, 'cursor': cursor}
-    request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables':variables}, headers=HEADERS) # I cannot use simple_request(), because I want to save the file before raising Exception
+    # I cannot use simple_request(), because I want to save the file before raising Exception
+    for attempt in range(4):
+        request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables':variables}, headers=HEADERS, timeout=30)
+        if request.status_code == 200:
+            break
+        if request.status_code in (403, 429, 500, 502, 503, 504): # transient: retry with backoff
+            retry_after = request.headers.get('Retry-After')
+            if retry_after and retry_after.isdigit():
+                time.sleep(min(int(retry_after), 30))
+            else:
+                time.sleep(2 ** attempt) # 1s, 2s, 4s
+            continue
+        break
     if request.status_code == 200:
-        if request.json()['data']['repository']['defaultBranchRef'] != None: # Only count commits if repo isn't empty
-            return loc_counter_one_repo(owner, repo_name, data, cache_comment, request.json()['data']['repository']['defaultBranchRef']['target']['history'], addition_total, deletion_total, my_commits)
-        else: return 0
+        try:
+            repository = request.json()['data']['repository']
+            default_branch = repository['defaultBranchRef']
+            if default_branch is not None: # Only count commits if repo isn't empty
+                return loc_counter_one_repo(owner, repo_name, data, cache_comment, default_branch['target']['history'], addition_total, deletion_total, my_commits)
+        except (KeyError, TypeError, ValueError):
+            pass
+        return 0, 0, 0 # Empty or missing repo: no additions, deletions, or commits
     force_close_file(data, cache_comment) # saves what is currently in the file before this program crashes
     if request.status_code == 403:
         raise Exception('Too many requests in a short amount of time!\nYou\'ve hit the non-documented anti-abuse limit!')
