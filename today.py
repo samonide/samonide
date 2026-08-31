@@ -125,6 +125,40 @@ def graph_repos_stars(count_type, owner_affiliation, cursor=None, add_loc=0, del
             return stars_counter(request.json()['data']['user']['repositories']['edges'])
 
 
+def rest_repos_stars():
+    """
+    Uses GitHub's REST v3 API to sum stargazers_count across repositories owned by me.
+    REST returns the public stargazers_count for any authenticated request, whereas GraphQL's
+    stargazers field is FORBIDDEN for tokens without repository access to every repo.
+    """
+    total_stars = 0
+    page = 1
+    while True:
+        url = f'https://api.github.com/users/{USER_NAME}/repos?per_page=100&page={page}'
+        for attempt in range(4):
+            request = requests.get(url, headers=HEADERS, timeout=30)
+            if request.status_code == 200:
+                break
+            if request.status_code in (403, 429, 500, 502, 503, 504): # transient: retry with backoff
+                retry_after = request.headers.get('Retry-After')
+                if retry_after and retry_after.isdigit():
+                    time.sleep(min(int(retry_after), 30))
+                else:
+                    time.sleep(2 ** attempt) # 1s, 2s, 4s
+                continue
+            break
+        if request.status_code != 200:
+            raise Exception(rest_repos_stars.__name__, ' has failed with', request.status_code, request.text)
+        repos = request.json()
+        if not repos:
+            break
+        total_stars += sum(repo['stargazers_count'] for repo in repos)
+        if len(repos) < 100:
+            break
+        page += 1
+    return total_stars
+
+
 def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, deletion_total=0, my_commits=0, cursor=None):
     """
     Uses GitHub's GraphQL v4 API and cursor pagination to fetch 100 commits from a repository at a time
@@ -521,7 +555,7 @@ if __name__ == '__main__':
     total_loc, loc_time = perf_counter(loc_query, ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'], 7)
     formatter('LOC (cached)', loc_time) if total_loc[-1] else formatter('LOC (no cache)', loc_time)
     commit_data, commit_time = perf_counter(commit_counter, 7)
-    star_data, star_time = perf_counter(graph_repos_stars, 'stars', ['OWNER'])
+    star_data, star_time = perf_counter(rest_repos_stars)
     repo_data, repo_time = perf_counter(graph_repos_stars, 'repos', ['OWNER'])
     contrib_data, contrib_time = perf_counter(graph_repos_stars, 'repos', ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'])
     follower_data, follower_time = perf_counter(follower_getter, USER_NAME)
