@@ -48,20 +48,22 @@ text, tspan {white-space: pre;}
 </text>
 <text x="390" y="30" class="head">samonide@samonide.com</text>
 <line x1="390" y1="46" x2="965" y2="46" class="rule"/>
-<text x="390" y="70"><tspan x="390" y="70" class="cc">. </tspan><tspan class="key">OS</tspan>:<tspan class="cc"> ........................ </tspan><tspan class="value">Arch Linux</tspan></text>
+<text x="390" y="70"><tspan x="390" y="70" class="cc">. </tspan><tspan class="key">Name</tspan>:<tspan class="cc"> ................. </tspan><tspan class="value">Samonide</tspan></text>
 <text x="390" y="92"><tspan x="390" y="92" class="cc">. </tspan><tspan class="key">Uptime</tspan>:<tspan class="cc" id="age_data_dots"> </tspan><tspan class="value" id="age_data">23 years, 8 months, 1 day</tspan></text>
-<text x="390" y="114"><tspan x="390" y="114" class="cc">. </tspan><tspan class="key">WM</tspan>:<tspan class="cc"> ........................ </tspan><tspan class="value">Hyprland</tspan></text>
-<text x="390" y="136"><tspan x="390" y="136" class="cc">. </tspan><tspan class="key">IDE</tspan>:<tspan class="cc"> ....................... </tspan><tspan class="value">Neovim, VSCode</tspan></text>
-<text x="390" y="168"><tspan x="390" y="168" class="cc">. </tspan><tspan class="key">Languages</tspan>.<tspan class="key">Programming</tspan>:<tspan class="cc"> ..... </tspan><tspan class="value">JavaScript, C++, Python, Lua</tspan></text>
-<text x="390" y="190"><tspan x="390" y="190" class="cc">. </tspan><tspan class="key">Languages</tspan>.<tspan class="key">Computer</tspan>:<tspan class="cc"> ........ </tspan><tspan class="value">Rust, Go, CSS, Markdown, YAML</tspan></text>
-<text x="390" y="212"><tspan x="390" y="212" class="cc">. </tspan><tspan class="key">Languages</tspan>.<tspan class="key">Real</tspan>:<tspan class="cc"> ............ </tspan><tspan class="value">English, Bangla</tspan></text>
-<text x="390" y="244"><tspan x="390" y="244" class="cc">. </tspan><tspan class="key">Hobbies</tspan>:<tspan class="cc"> .......... </tspan><tspan class="value">books and computers</tspan></text>
+<text x="390" y="114"><tspan x="390" y="114" class="cc">. </tspan><tspan class="key">OS</tspan>:<tspan class="cc"> ................... </tspan><tspan class="value">Linux</tspan></text>
+<text x="390" y="136"><tspan x="390" y="136" class="cc">. </tspan><tspan class="key">WM</tspan>:<tspan class="cc"> ................... </tspan><tspan class="value">Niri &amp; Hyprland</tspan></text>
+<line x1="390" y1="158" x2="965" y2="158" class="rule"/>
+<text x="390" y="182"><tspan x="390" y="182" class="cc">. </tspan><tspan class="key">Language</tspan>.<tspan class="key">Programming</tspan>:<tspan class="cc"> . </tspan><tspan class="value">JS, C++, C, Python, Lua</tspan></text>
+<text x="390" y="204"><tspan x="390" y="204" class="cc">. </tspan><tspan class="key">Language</tspan>.<tspan class="key">Learning</tspan>:<tspan class="cc"> .... </tspan><tspan class="value">Rust, Go</tspan></text>
+<text x="390" y="226"><tspan x="390" y="226" class="cc">. </tspan><tspan class="key">Language</tspan>.<tspan class="key">irl</tspan>:<tspan class="cc"> ......... </tspan><tspan class="value">Bengali, English</tspan></text>
+<text x="390" y="248"><tspan x="390" y="248" class="cc">. </tspan><tspan class="key">Language</tspan>.<tspan class="key">Plan</tspan>:<tspan class="cc"> ........ </tspan><tspan class="value">Mandarin</tspan></text>
+<line x1="390" y1="264" x2="965" y2="264" class="rule"/>
 <text x="390" y="288" class="head">Contact</text>
 <line x1="390" y1="296" x2="965" y2="296" class="rule"/>
-<text x="390" y="320"><tspan x="390" y="320" class="cc">. </tspan><tspan class="key">Email</tspan>.<tspan class="key">Personal</tspan>:<tspan class="cc"> ............ </tspan><tspan class="value">samonide@fmb.im</tspan></text>
-<text x="390" y="342"><tspan x="390" y="342" class="cc">. </tspan><tspan class="key">Website</tspan>:<tspan class="cc"> ................... </tspan><tspan class="value">samonide.com</tspan></text>
-<text x="390" y="364"><tspan x="390" y="364" class="cc">. </tspan><tspan class="key">LinkedIn</tspan>:<tspan class="cc"> .................. </tspan><tspan class="value">emamulmontachir</tspan></text>
-<text x="390" y="386"><tspan x="390" y="386" class="cc">. </tspan><tspan class="key">Discord</tspan>:<tspan class="cc"> ................... </tspan><tspan class="value">samonide</tspan></text>
+<text x="390" y="320"><tspan x="390" y="320" class="cc">. </tspan><tspan class="key">Email</tspan>.<tspan class="key">Personal</tspan>:<tspan class="cc"> ....... </tspan><tspan class="value">samonide@fmb.im</tspan></text>
+<text x="390" y="342"><tspan x="390" y="342" class="cc">. </tspan><tspan class="key">Website</tspan>:<tspan class="cc"> .............. </tspan><tspan class="value">samonide.com</tspan></text>
+<text x="390" y="364"><tspan x="390" y="364" class="cc">. </tspan><tspan class="key">LinkedIn</tspan>:<tspan class="cc"> ............. </tspan><tspan class="value">emamulmontachir</tspan></text>
+<text x="390" y="386"><tspan x="390" y="386" class="cc">. </tspan><tspan class="key">Discord</tspan>:<tspan class="cc"> .............. </tspan><tspan class="value">samonide</tspan></text>
 <text x="390" y="430" class="head">GitHub Stats</text>
 <line x1="390" y1="438" x2="965" y2="438" class="rule"/>
 <text x="390" y="460"><tspan x="390" y="460" class="cc">. </tspan><tspan class="key">Repos</tspan>:<tspan class="cc" id="repo_data_dots"> .... </tspan><tspan class="value" id="repo_data">27</tspan> {<tspan class="key">Contributed</tspan>: <tspan class="cc" id="contrib_data_dots"></tspan><tspan class="value" id="contrib_data">27</tspan>} | <tspan class="key">Stars</tspan>:<tspan class="cc" id="star_data_dots"> ............. </tspan><tspan class="value" id="star_data">9</tspan></text>
